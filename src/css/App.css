@@ -1,0 +1,29 @@
+.app {
+  background-color: #68aeba;
+}
+
+.app-title {
+  text-decoration: underline;
+  text-align: center;
+}
+
+.settings {
+  display: flex;
+  justify-content: center;
+}
+
+.search-wrapper,
+.filterStatus-wrapper {
+  margin-left: 5%;
+}
+
+.search-label {
+  font-weight: 800;
+}
+
+.list {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  font-weight: 700;
+}

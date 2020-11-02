@@ -4,13 +4,19 @@ import { Context } from './context';
 import { AddNewTodo } from './AddNewTodo';
 import { Search } from './Search';
 import { FilterStatus } from './FilterStatus';
-import { connect } from 'react-redux';
-import { todosFromStorage, searchTodosStorage, filterStatusTodosStorage } from './actions/';
-import './css/App.css'
+import { useDispatch, useSelector } from "react-redux";
+import { todosFromStorage, searchTodosStorage, filterStatusTodosStorage } from './actions';
+import './css/AppHooks.css';
 
-const App = ({ todos, searchTodos, filterStatusTodos, setTodos, setSearchTodos, setFilterStatusTodos }) => {
+const AppHooks = () => {
   const [searchValue, setSearchValue] = useState('');
   const [filterStatusValue, setFilterStatusValue] = useState('');
+
+  const dispatch = useDispatch()
+
+  const todos = useSelector((store) => store.todos)//раньше было useState(todos)
+  const searchTodos = useSelector((store) => store.searchTodos)//раньше было [searchTodos, setSearchTodos] = useState
+  const filterStatusTodos = useSelector((store) => store.filterStatusTodos)//раньше было [filterStatusTodos, setFilterStatusTodos] = useState
 
   useEffect(() => {
     const raw = localStorage.getItem('todos') || [];
@@ -21,23 +27,31 @@ const App = ({ todos, searchTodos, filterStatusTodos, setTodos, setSearchTodos, 
     localStorage.setItem('todos', JSON.stringify(todos))
   }, [todos])
 
+  const setTodos = (raw) => {
+    dispatch(todosFromStorage(raw))
+  }
+
+  const setSearchTodos = (raw) => {
+    dispatch(searchTodosStorage(raw))
+  }
+
+  const setFilterStatusTodos = (raw) => {
+    dispatch(filterStatusTodosStorage(raw))
+  }
 
   const deleteTodo = (id) => {
-    setTodos(todos.filter((todo) => { return todo.id !== id }))
+    setTodos(todos.filter((todo) => { return todo.id !== id }));
     setSearchTodos(searchTodos.filter((todo) => { return todo.id !== id }));
     setFilterStatusTodos(filterStatusTodos.filter((todo) => { return todo.id !== id }))
-    console.log(filterStatusTodos, '///filterStatusTodos in delete')
   }
 
   const addTodo = (value) => {
-    console.log('add');
     if (value !== '') {
       let newTodo = {
         id: Date.now(),
         title: value,
         completed: false,
       }
-      console.log(newTodo, 'newTodo')
       setTodos([...todos, newTodo])
     }
   }
@@ -91,9 +105,9 @@ const App = ({ todos, searchTodos, filterStatusTodos, setTodos, setSearchTodos, 
 
   return (
     <Context.Provider value={{ deleteTodo, addTodo, toggleCheckbox }}>
-      <div className="app">
-        <h1 className='app-title'>Todo List(conect, page2)</h1>
-        <div className='settings'>
+      <div className="app-hooks">
+        <h1 className='app-title'>Todo List(hooks, page1)</h1>
+        <div className="settings">
           <AddNewTodo />
           <Search saveSearch={saveSearch} />
           <FilterStatus filterStatusSave={filterStatusSave} />
@@ -110,18 +124,4 @@ const App = ({ todos, searchTodos, filterStatusTodos, setTodos, setSearchTodos, 
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    todos: state.todos,
-    searchTodos: state.searchTodos,
-    filterStatusTodos: state.filterStatusTodos,
-  }
-}
-
-const mapDispatchToProps = {
-  setTodos: todosFromStorage,
-  setSearchTodos: searchTodosStorage,
-  setFilterStatusTodos: filterStatusTodosStorage,
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default AppHooks;
